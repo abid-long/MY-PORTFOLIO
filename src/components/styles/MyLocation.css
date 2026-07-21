@@ -101,6 +101,67 @@
   to { opacity: 0.7; }
 }
 
+/* Home planet — placed as the last item in the same flying row as every
+   other planet, so it shares the row's single transform (translate +
+   scale) instead of running its own separate fade/position animation.
+   That's what keeps its growth perfectly smooth and in sync with the
+   rest of the flyby, with no independent pop-in. */
+.ml-home-earth {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 50px 16px rgba(120, 195, 255, 0.4), 0 0 100px 32px rgba(90, 170, 255, 0.2);
+}
+.ml-home-earth-map,
+.ml-home-earth-clouds,
+.ml-home-earth-night {
+  position: absolute;
+  inset: -8%;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 40% 44%;
+}
+.ml-home-earth-map {
+  filter: saturate(1.15) contrast(1.08);
+  /* spin only kicks in once the fly-in zoom (ml-fly, 4.2s) has finished,
+     so the zoom-up reads first and the rotation "turns on" after */
+  animation: ml-home-earth-spin 60s linear infinite;
+  animation-delay: 4.2s;
+}
+.ml-home-earth-clouds {
+  mix-blend-mode: screen;
+  opacity: 0.75;
+  animation: ml-home-earth-spin 84s linear infinite;
+  animation-delay: 4.2s;
+}
+.ml-home-earth-night {
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(circle at 72% 60%, transparent 30%, #000 62%);
+  mask-image: radial-gradient(circle at 72% 60%, transparent 30%, #000 62%);
+  animation: ml-home-earth-spin 60s linear infinite;
+  animation-delay: 4.2s;
+}
+@keyframes ml-home-earth-spin {
+  from { background-position: 40% 44%; }
+  to { background-position: -180% 44%; }
+}
+.ml-home-earth-shade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 72% 60%, transparent 30%, rgba(0, 0, 20, 0.5) 62%, rgba(0, 0, 15, 0.9) 100%);
+}
+.ml-home-earth-atmosphere {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 26px 8px rgba(140, 205, 255, 0.5);
+  pointer-events: none;
+}
+
 .ml-solar-track {
   position: absolute;
   left: 4%;
@@ -112,10 +173,50 @@
   animation: ml-fly 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards;
   z-index: 3;
 }
+
+/* Final planet — placed as the last item in the flying row so it shares
+   the row's single transform (translate + scale), keeping its growth in
+   sync with the rest of the flyby. */
+.ml-final-planet {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 50px 16px rgba(200, 170, 140, 0.35), 0 0 100px 32px rgba(180, 150, 120, 0.18);
+}
+.ml-final-planet-map {
+  position: absolute;
+  inset: -8%;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 40% 44%;
+  filter: saturate(1.1) contrast(1.08);
+  animation: ml-final-planet-spin 70s linear infinite;
+  animation-delay: 4.2s;
+}
+@keyframes ml-final-planet-spin {
+  from { background-position: 40% 44%; }
+  to { background-position: -180% 44%; }
+}
+.ml-final-planet-shade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 72% 60%, transparent 30%, rgba(0, 0, 20, 0.5) 62%, rgba(0, 0, 15, 0.9) 100%);
+}
+.ml-final-planet-atmosphere {
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 26px 8px rgba(210, 180, 150, 0.4);
+  pointer-events: none;
+}
 @keyframes ml-fly {
   0% { transform: translate(0, -50%) scale(1); }
   60% { transform: translate(-42%, -50%) scale(2.3); }
-  100% { transform: translate(-118%, -50%) scale(11); }
+  85% { transform: translate(-46%, -50%) scale(6.5); }
+  100% { transform: translate(-48%, -50%) scale(11); }
 }
 
 .ml-planet {
@@ -125,22 +226,32 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 42% 50%;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  filter: saturate(1.15) contrast(1.1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset -3px -3px 5px rgba(0, 0, 0, 0.5);
 }
 .ml-planet:not(.ml-sun)::before {
+  /* terminator: real night side falloff, lit from the sun sitting at
+     the left end of the track, wrapping further round for a rounder,
+     less "sticker" shadow */
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 70% 65%, transparent 26%, rgba(0, 0, 0, 0.4) 62%, rgba(0, 0, 0, 0.88) 100%);
+  background: radial-gradient(circle at 74% 60%, transparent 18%, rgba(4, 6, 14, 0.55) 48%, rgba(2, 3, 10, 0.94) 82%, rgba(0, 0, 0, 0.98) 100%);
   pointer-events: none;
 }
 .ml-planet:not(.ml-sun)::after {
+  /* soft key-light highlight plus a thin bright rim on the lit edge,
+     the way sunlight grazes a real photographed sphere */
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.5), transparent 34%);
+  background:
+    radial-gradient(circle at 22% 20%, rgba(255, 255, 255, 0.55), transparent 32%),
+    radial-gradient(circle at 30% 32%, transparent 60%, rgba(200, 225, 255, 0.16) 78%, transparent 84%);
   mix-blend-mode: overlay;
   pointer-events: none;
 }
@@ -163,19 +274,87 @@
 .ml-mars { width: 22px; height: 22px; }
 .ml-jupiter { width: 64px; height: 64px; }
 .ml-saturn { width: 54px; height: 54px; }
+.ml-saturn-group {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+}
+.ml-saturn-group .ml-planet.ml-saturn {
+  position: relative;
+  z-index: 2;
+}
+/* Ring passing BEHIND the planet: a solid, continuous banded ellipse.
+   The planet's own opaque disc (z-index 2, painted after) naturally
+   covers the middle portion — no transparent "hole" or mid-stripe is
+   needed, so there's no gap/see-through slit down the center. */
 .ml-ring {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 118%;
-  height: 22px;
+  width: 210%;
+  height: 15px;
   border-radius: 50%;
-  transform: translate(-50%, -50%) rotate(-18deg);
-  background: linear-gradient(180deg, transparent 0%, rgba(224, 200, 150, 0.75) 18%, rgba(120, 100, 75, 0.4) 32%, transparent 46%, transparent 54%, rgba(120, 100, 75, 0.4) 68%, rgba(224, 200, 150, 0.75) 82%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 34%, #000 36%);
-  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 34%, #000 36%);
+  transform: translate(-50%, -50%) rotate(-17deg);
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(226, 202, 150, 0.3) 8%,
+    rgba(196, 168, 122, 0.88) 20%,
+    rgba(150, 122, 90, 0.6) 34%,
+    rgba(234, 213, 168, 0.97) 48%,
+    rgba(234, 213, 168, 0.97) 52%,
+    rgba(150, 122, 90, 0.6) 66%,
+    rgba(196, 168, 122, 0.88) 80%,
+    rgba(226, 202, 150, 0.3) 92%,
+    transparent 100%
+  );
+  filter: drop-shadow(0 0 1.5px rgba(10, 8, 4, 0.55));
 }
-.ml-uranus { width: 42px; height: 42px; }
+/* Ring passing IN FRONT of the planet: same band, but clipped to a
+   circle that exactly matches the planet's own size/position, so it
+   can never bleed past the planet's edge or misalign with it. */
+.ml-ring-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 3;
+  pointer-events: none;
+}
+.ml-ring-front::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 210%;
+  height: 15px;
+  transform: translate(-50%, -50%) rotate(-17deg);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(226, 202, 150, 0.22) 30%,
+    rgba(216, 194, 150, 0.6) 46%,
+    rgba(216, 194, 150, 0.6) 54%,
+    rgba(226, 202, 150, 0.22) 70%,
+    transparent 100%
+  );
+}
+.ml-uranus {
+  width: 42px;
+  height: 42px;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 40% 44%;
+  animation: ml-uranus-earth-spin 60s linear infinite;
+  animation-delay: 4.2s;
+}
+@keyframes ml-uranus-earth-spin {
+  from { background-position: 40% 44%; }
+  to { background-position: -180% 44%; }
+}
 .ml-neptune { width: 40px; height: 40px; }
 
 .ml-comet {
@@ -219,21 +398,37 @@
   background-size: 220% 100%;
   background-repeat: repeat-x;
   background-position: 30% 45%;
+  filter: saturate(1.15) contrast(1.08);
   animation: ml-globe-spin 26s linear infinite;
 }
 @keyframes ml-globe-spin {
   from { background-position: 30% 45%; }
   to { background-position: -190% 45%; }
 }
+/* real night-side city lights, masked to only the shadowed hemisphere
+   so it reads as light glowing through the dark side, not a flat overlay */
+.ml-globe-night {
+  position: absolute;
+  inset: -5% -30%;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 30% 45%;
+  mix-blend-mode: screen;
+  opacity: 0.85;
+  -webkit-mask-image: radial-gradient(circle at 72% 68%, transparent 30%, #000 60%);
+  mask-image: radial-gradient(circle at 72% 68%, transparent 30%, #000 60%);
+  animation: ml-globe-spin 26s linear infinite;
+}
+/* real photographic cloud map instead of painted CSS blobs */
 .ml-globe-clouds {
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(ellipse 22% 8% at 25% 20%, rgba(255, 255, 255, 0.55), transparent 70%),
-    radial-gradient(ellipse 30% 10% at 65% 38%, rgba(255, 255, 255, 0.45), transparent 70%),
-    radial-gradient(ellipse 18% 7% at 40% 60%, rgba(255, 255, 255, 0.4), transparent 70%),
-    radial-gradient(ellipse 26% 9% at 75% 75%, rgba(255, 255, 255, 0.4), transparent 70%);
-  filter: blur(1px);
+  inset: -5% -30%;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 30% 45%;
   mix-blend-mode: screen;
+  opacity: 0.8;
+  animation: ml-globe-spin 34s linear infinite;
 }
 .ml-globe-shade {
   position: absolute;
@@ -438,6 +633,7 @@
 }
 
 @media only screen and (max-width: 599px) {
+  .ml-home-earth { width: 76px; height: 76px; }
   .ml-solar-track { gap: 78px; }
   .ml-sun { width: 84px; height: 84px; }
   .ml-map-viewport { width: 150vmin; height: 150vmin; border-radius: 50%; }

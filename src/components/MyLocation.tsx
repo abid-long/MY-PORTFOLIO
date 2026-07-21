@@ -19,15 +19,18 @@ const WIKI = (file: string, width: number) =>
 
 const TEX = {
   stars: WIKI("Solarsystemscope_texture_2k_stars_milky_way.jpg", 2000),
-  sun: WIKI("Solarsystemscope_texture_2k_sun.jpg", 400),
-  mercury: WIKI("Solarsystemscope_texture_2k_mercury.jpg", 160),
-  venus: WIKI("Solarsystemscope_texture_2k_venus_surface.jpg", 200),
-  earth: WIKI("Solarsystemscope_texture_2k_earth_daymap.jpg", 900),
-  mars: WIKI("Solarsystemscope_texture_2k_mars.jpg", 180),
-  jupiter: WIKI("Solarsystemscope_texture_2k_jupiter.jpg", 340),
-  saturn: WIKI("Solarsystemscope_texture_2k_saturn.jpg", 300),
-  uranus: WIKI("Solarsystemscope_texture_2k_uranus.jpg", 220),
-  neptune: WIKI("Solarsystemscope_texture_2k_neptune.jpg", 220),
+  sun: WIKI("Solarsystemscope_texture_2k_sun.jpg", 500),
+  mercury: WIKI("Solarsystemscope_texture_2k_mercury.jpg", 200),
+  venus: WIKI("Solarsystemscope_texture_2k_venus_surface.jpg", 240),
+  earth: WIKI("Solarsystemscope_texture_2k_earth_daymap.jpg", 2048),
+  earthClouds: WIKI("Solarsystemscope_texture_2k_earth_clouds.jpg", 2048),
+  earthNight: WIKI("Solarsystemscope_texture_2k_earth_nightmap.jpg", 1600),
+  mars: WIKI("Solarsystemscope_texture_2k_mars.jpg", 220),
+  jupiter: WIKI("Solarsystemscope_texture_2k_jupiter.jpg", 400),
+  saturn: WIKI("Solarsystemscope_texture_2k_saturn.jpg", 360),
+  uranus: WIKI("Solarsystemscope_texture_2k_uranus.jpg", 260),
+  neptune: WIKI("Solarsystemscope_texture_2k_neptune.jpg", 260),
+  pluto: WIKI("Pluto_in_True_Color_-_High-Res.jpg", 500),
 };
 
 // Real coordinates for each stop on the journey home — fed straight into
@@ -42,9 +45,9 @@ const MAP_STOPS = [
 const HOLD_MS = [1700, 1500, 1500, 1800]; // pause at each stop before moving on
 const FLY_DURATION = 1.6; // seconds, Leaflet's built-in animated pan+zoom
 
-// CARTO's free "Dark Matter" tiles — real OpenStreetMap data, no API key,
-// styled dark so it matches the site's night sky.
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+// CARTO's free "Voyager" tiles — real OpenStreetMap data, no API key,
+// shown in full real color instead of the dark black/white style.
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
@@ -213,11 +216,23 @@ const MyLocation = ({
           <div className="ml-planet ml-earth-dot" style={{ backgroundImage: `url(${TEX.earth})` }} />
           <div className="ml-planet ml-mars" style={{ backgroundImage: `url(${TEX.mars})` }} />
           <div className="ml-planet ml-jupiter" style={{ backgroundImage: `url(${TEX.jupiter})` }} />
-          <div className="ml-planet ml-saturn" style={{ backgroundImage: `url(${TEX.saturn})` }}>
+          <div className="ml-saturn-group">
             <div className="ml-ring" />
+            <div className="ml-planet ml-saturn" style={{ backgroundImage: `url(${TEX.saturn})` }} />
+            <div className="ml-ring-front" />
           </div>
-          <div className="ml-planet ml-uranus" style={{ backgroundImage: `url(${TEX.uranus})` }} />
+          <div className="ml-planet ml-uranus" style={{ backgroundImage: `url(${TEX.earth})` }} />
           <div className="ml-planet ml-neptune" style={{ backgroundImage: `url(${TEX.neptune})` }} />
+
+          {/* Final planet at the end of the flight path — shares the row's
+              single transform (translate + scale) so it grows into frame
+              smoothly with the rest of the flyby, same as every other
+              planet, just further out. */}
+          <div className="ml-final-planet">
+            <div className="ml-final-planet-map" style={{ backgroundImage: `url(${TEX.pluto})` }} />
+            <div className="ml-final-planet-shade" />
+            <div className="ml-final-planet-atmosphere" />
+          </div>
         </div>
         <div className="ml-comet" />
         <p className="ml-caption ml-caption-space">leaving the solar system...</p>
@@ -228,7 +243,8 @@ const MyLocation = ({
         <div className="ml-stars ml-stars-still" style={{ backgroundImage: `url(${TEX.stars})` }} />
         <div className="ml-globe">
           <div className="ml-globe-map" style={{ backgroundImage: `url(${TEX.earth})` }} />
-          <div className="ml-globe-clouds" />
+          <div className="ml-globe-night" style={{ backgroundImage: `url(${TEX.earthNight})` }} />
+          <div className="ml-globe-clouds" style={{ backgroundImage: `url(${TEX.earthClouds})` }} />
           <div className="ml-globe-shade" />
           <div className="ml-globe-shine" />
           <div className="ml-globe-atmosphere" />
