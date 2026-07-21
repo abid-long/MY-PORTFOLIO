@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import HoverLinks from "./HoverLinks";
 import { gsap } from "gsap";
+import MyLocation from "./MyLocation";
 import "./styles/Navbar.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +17,8 @@ export let smoother: { paused: (_value: boolean) => void; scrollTo: (target: str
 };
 
 const Navbar = () => {
+  const [showMyLocation, setShowMyLocation] = useState(false);
+
   useEffect(() => {
     smoother = {
       paused: () => undefined,
@@ -61,12 +64,26 @@ const Navbar = () => {
               <HoverLinks text="CONTACT" />
             </a>
           </li>
+          <li>
+            <button
+              type="button"
+              className="nav-location-btn"
+              onClick={() => setShowMyLocation(true)}
+            >
+              <HoverLinks text="MY LOCATION" />
+            </button>
+          </li>
         </ul>
       </div>
 
       <div className="landing-circle1"></div>
       <div className="landing-circle2"></div>
       <div className="nav-fade"></div>
+
+      <MyLocation
+        isOpen={showMyLocation}
+        onClose={() => setShowMyLocation(false)}
+      />
     </>
   );
 };

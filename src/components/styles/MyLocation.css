@@ -1,0 +1,456 @@
+.mylocation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: radial-gradient(circle at 50% 50%, #0b1330, #030510 75%);
+  overflow: hidden;
+  animation: ml-fade-in 0.5s ease;
+}
+@keyframes ml-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mylocation-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 100000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(8, 15, 35, 0.6);
+  color: #eaf2ff;
+  font-size: 15px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.mylocation-close:hover {
+  border-color: rgba(138, 216, 255, 0.4);
+  transform: scale(1.06);
+}
+
+.ml-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease, filter 0.9s ease;
+  overflow: hidden;
+  filter: blur(0);
+}
+.ml-stage.ml-active { opacity: 1; pointer-events: auto; z-index: 5; }
+.ml-stage.ml-hidden { opacity: 0; filter: blur(6px); }
+.ml-stage.ml-gone { opacity: 0; filter: blur(10px); }
+
+.ml-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(2, 4, 14, 0.55) 100%);
+  z-index: 2;
+}
+
+.ml-caption {
+  position: absolute;
+  bottom: 9%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #cfe8ff;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  font-family: "Geist Mono", "Consolas", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  z-index: 6;
+  animation: ml-caption-in 1s ease forwards 0.5s, ml-text-glow 2.2s ease-in-out infinite 0.5s;
+}
+@keyframes ml-caption-in {
+  0% { opacity: 0; transform: translate(-50%, 8px); letter-spacing: 8px; }
+  100% { opacity: 1; transform: translate(-50%, 0); letter-spacing: 5px; }
+}
+@keyframes ml-text-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(138, 216, 255, 0.35), 0 0 16px rgba(138, 216, 255, 0.2); }
+  50% { text-shadow: 0 0 12px rgba(138, 216, 255, 0.85), 0 0 32px rgba(138, 216, 255, 0.55), 0 0 60px rgba(138, 216, 255, 0.25); }
+}
+
+/* ---------- Stage 1: solar system flyby (real textures) ---------- */
+.ml-stars {
+  position: absolute;
+  inset: -15%;
+  background-size: 1400px auto;
+  background-repeat: repeat;
+  opacity: 0.55;
+  filter: brightness(1.4) contrast(1.1);
+  animation: ml-star-drift 60s linear infinite, ml-twinkle 3s ease-in-out infinite alternate;
+}
+.ml-stars-still { animation: ml-twinkle 3s ease-in-out infinite alternate; }
+@keyframes ml-star-drift {
+  from { background-position: 0 0; }
+  to { background-position: -1400px -700px; }
+}
+@keyframes ml-twinkle {
+  from { opacity: 0.35; }
+  to { opacity: 0.7; }
+}
+
+.ml-solar-track {
+  position: absolute;
+  left: 4%;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  gap: 150px;
+  transform-origin: 68% 50%;
+  animation: ml-fly 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+  z-index: 3;
+}
+@keyframes ml-fly {
+  0% { transform: translate(0, -50%) scale(1); }
+  60% { transform: translate(-42%, -50%) scale(2.3); }
+  100% { transform: translate(-118%, -50%) scale(11); }
+}
+
+.ml-planet {
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 42% 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.ml-planet:not(.ml-sun)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 70% 65%, transparent 26%, rgba(0, 0, 0, 0.4) 62%, rgba(0, 0, 0, 0.88) 100%);
+  pointer-events: none;
+}
+.ml-planet:not(.ml-sun)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.5), transparent 34%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.ml-sun {
+  width: 120px;
+  height: 120px;
+  background-size: 130%;
+  box-shadow: 0 0 60px 18px rgba(255, 143, 63, 0.5), 0 0 110px 40px rgba(255, 110, 40, 0.25);
+  animation: ml-sun-flare 3s ease-in-out infinite;
+}
+@keyframes ml-sun-flare {
+  0%, 100% { box-shadow: 0 0 60px 18px rgba(255, 143, 63, 0.5), 0 0 110px 40px rgba(255, 110, 40, 0.25); }
+  50% { box-shadow: 0 0 78px 26px rgba(255, 165, 90, 0.68), 0 0 145px 55px rgba(255, 110, 40, 0.36); }
+}
+
+.ml-mercury { width: 18px; height: 18px; }
+.ml-venus { width: 30px; height: 30px; }
+.ml-earth-dot { width: 34px; height: 34px; box-shadow: 0 0 22px 5px rgba(138, 216, 255, 0.5); }
+.ml-mars { width: 22px; height: 22px; }
+.ml-jupiter { width: 64px; height: 64px; }
+.ml-saturn { width: 54px; height: 54px; }
+.ml-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 118%;
+  height: 22px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+  background: linear-gradient(180deg, transparent 0%, rgba(224, 200, 150, 0.75) 18%, rgba(120, 100, 75, 0.4) 32%, transparent 46%, transparent 54%, rgba(120, 100, 75, 0.4) 68%, rgba(224, 200, 150, 0.75) 82%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 34%, #000 36%);
+  mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, transparent 34%, #000 36%);
+}
+.ml-uranus { width: 42px; height: 42px; }
+.ml-neptune { width: 40px; height: 40px; }
+
+.ml-comet {
+  position: absolute;
+  top: 55%;
+  left: -10%;
+  width: 140px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #8ad8ff 55%, #ffffff);
+  border-radius: 4px;
+  filter: blur(0.4px);
+  opacity: 0;
+  z-index: 4;
+  animation: ml-comet-fly 4.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes ml-comet-fly {
+  0% { left: -10%; top: 58%; opacity: 0; transform: scaleX(0.6); }
+  10% { opacity: 1; }
+  100% { left: 104%; top: 28%; opacity: 0; transform: scaleX(1.7); }
+}
+
+/* ---------- Stage 2: Earth approach (real day-map texture) ---------- */
+.ml-earth-stage { perspective: 1000px; background: radial-gradient(circle at 50% 50%, #061024, #020410 80%); }
+.ml-globe {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 90px 24px rgba(138, 216, 255, 0.35);
+  animation: ml-globe-zoom 2.6s cubic-bezier(0.55, 0, 0.25, 1) forwards;
+  z-index: 3;
+}
+@keyframes ml-globe-zoom {
+  0% { width: 60px; height: 60px; }
+  100% { width: 1700px; height: 1700px; }
+}
+.ml-globe-map {
+  position: absolute;
+  inset: -5% -30%;
+  background-size: 220% 100%;
+  background-repeat: repeat-x;
+  background-position: 30% 45%;
+  animation: ml-globe-spin 26s linear infinite;
+}
+@keyframes ml-globe-spin {
+  from { background-position: 30% 45%; }
+  to { background-position: -190% 45%; }
+}
+.ml-globe-clouds {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(ellipse 22% 8% at 25% 20%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 30% 10% at 65% 38%, rgba(255, 255, 255, 0.45), transparent 70%),
+    radial-gradient(ellipse 18% 7% at 40% 60%, rgba(255, 255, 255, 0.4), transparent 70%),
+    radial-gradient(ellipse 26% 9% at 75% 75%, rgba(255, 255, 255, 0.4), transparent 70%);
+  filter: blur(1px);
+  mix-blend-mode: screen;
+}
+.ml-globe-shade {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 72% 68%, transparent 32%, rgba(0, 0, 30, 0.42) 62%, rgba(0, 0, 20, 0.88) 100%);
+}
+.ml-globe-shine {
+  position: absolute;
+  top: 10%;
+  left: 14%;
+  width: 32%;
+  height: 32%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent 70%);
+  border-radius: 50%;
+}
+.ml-globe-atmosphere {
+  position: absolute;
+  inset: -2%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 60px 20px rgba(120, 200, 255, 0.35);
+  pointer-events: none;
+}
+
+/* ---------- Stage 3: real map drill-down (continuous zoom) ---------- */
+.ml-map-stage { background: radial-gradient(circle at 50% 50%, #0a2a4d, #030510 78%); }
+
+.ml-map-viewport {
+  position: relative;
+  width: min(74vmin, 640px);
+  height: min(74vmin, 640px);
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(138, 216, 255, 0.28);
+  box-shadow: 0 0 0 10px rgba(5, 12, 30, 0.55), 0 30px 90px rgba(0, 0, 0, 0.55),
+    0 0 70px rgba(138, 216, 255, 0.15);
+  background: #0a1524;
+}
+
+/* The real Leaflet map lives here — it renders real OpenStreetMap tiles
+   into this div, so we just give it a nicely framed viewport and let
+   the actual map imagery do the work. */
+.ml-leaflet-map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #0a1524;
+}
+/* keep Leaflet's own attribution readable but unobtrusive on dark UI */
+.ml-leaflet-map .leaflet-control-attribution {
+  background: rgba(5, 12, 30, 0.55);
+  color: rgba(207, 232, 255, 0.6);
+  font-size: 9px;
+  padding: 1px 6px;
+}
+.ml-leaflet-map .leaflet-control-attribution a {
+  color: rgba(138, 216, 255, 0.8);
+}
+
+.ml-map-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(3, 8, 20, 0.5) 100%);
+}
+
+/* quick radial flash at the moment each new level lands, like the
+   subtle snap when Google Maps finishes a zoom tween */
+.ml-zoom-pulse {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.55), transparent 45%);
+  opacity: 0;
+  animation: ml-zoom-flash 0.6s ease-out;
+}
+@keyframes ml-zoom-flash {
+  0% { opacity: 0.65; transform: scale(0.7); }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+/* Google-Maps-style floating place chip above the viewport */
+.ml-map-chip {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-radius: 14px;
+  background: rgba(10, 18, 38, 0.78);
+  border: 1px solid rgba(138, 216, 255, 0.3);
+  backdrop-filter: blur(10px);
+  animation: ml-chip-in 0.5s cubic-bezier(0.3, 0, 0.2, 1);
+}
+@keyframes ml-chip-in {
+  0% { opacity: 0; transform: translate(-50%, -10px) scale(0.92); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+.ml-map-chip-pin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50% 50% 50% 0;
+  background: #8ad8ff;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 10px rgba(138, 216, 255, 0.7);
+  flex-shrink: 0;
+}
+.ml-map-chip .ml-pin-label {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #f2f8ff;
+}
+.ml-map-chip .ml-pin-coords {
+  display: block;
+  margin-top: 2px;
+  font-family: "Geist Mono", "Consolas", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: rgba(207, 232, 255, 0.75);
+}
+
+/* progress trail: Bangladesh > Khulna > Jessore > Noapara */
+.ml-map-trail {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  gap: 10px;
+}
+.ml-map-trail-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(207, 232, 255, 0.25);
+  transition: background 0.4s ease, transform 0.4s ease;
+}
+.ml-map-trail-dot-on {
+  background: #8ad8ff;
+  box-shadow: 0 0 8px rgba(138, 216, 255, 0.8);
+  transform: scale(1.25);
+}
+
+/* ---------- Stage 4: reveal ---------- */
+.ml-reveal-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  background: rgba(8, 15, 35, 0.72);
+  border: 1px solid rgba(138, 216, 255, 0.3);
+  backdrop-filter: blur(14px);
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 360px;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.85);
+  box-shadow: 0 0 40px rgba(138, 216, 255, 0.12), 0 0 90px rgba(138, 216, 255, 0.08);
+  animation: ml-reveal-in 0.8s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+@keyframes ml-reveal-in {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.ml-reveal-photo {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid rgba(138, 216, 255, 0.4);
+  box-shadow: 0 0 20px rgba(138, 216, 255, 0.25), 0 0 50px rgba(138, 216, 255, 0.15);
+}
+.ml-reveal-eyebrow {
+  font-family: "Geist Mono", "Consolas", monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #8ad8ff;
+  text-shadow: 0 0 10px rgba(138, 216, 255, 0.6);
+}
+.ml-reveal-text h3 {
+  margin: 8px 0 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #f2f8ff;
+  text-shadow: 0 0 12px rgba(138, 216, 255, 0.75), 0 0 30px rgba(138, 216, 255, 0.4), 0 0 60px rgba(138, 216, 255, 0.2);
+  animation: ml-text-glow 2.2s ease-in-out infinite;
+}
+.ml-reveal-text p {
+  margin: 4px 0 0;
+  font-family: "Geist Mono", "Consolas", monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #9fb2d9;
+}
+
+@media only screen and (max-width: 599px) {
+  .ml-solar-track { gap: 78px; }
+  .ml-sun { width: 84px; height: 84px; }
+  .ml-reveal-photo { width: 170px; height: 170px; }
+  .ml-map-viewport { width: 88vmin; height: 88vmin; border-radius: 20px; }
+  .ml-map-chip { padding: 8px 14px; gap: 8px; }
+  .ml-map-chip .ml-pin-label { font-size: 14px; letter-spacing: 1px; }
+  .ml-map-chip .ml-pin-coords { font-size: 9px; }
+  .ml-caption { font-size: 10px; letter-spacing: 3px; }
+  .ml-reveal-text h3 { font-size: 24px; }
+}

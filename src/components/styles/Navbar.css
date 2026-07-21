@@ -42,6 +42,15 @@
   transform: translateY(-1px);
   opacity: 1;
 }
+.nav-location-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
 @media only screen and (max-width: 499px) {
   .header {
     padding: 14px 0px;
