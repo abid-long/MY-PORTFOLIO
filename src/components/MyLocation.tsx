@@ -3,13 +3,12 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles/MyLocation.css";
 
-type Stage = "space" | "earth" | "map" | "reveal";
+type Stage = "space" | "earth" | "map";
 
 const STAGE_DURATIONS: Record<Stage, number> = {
   space: 4200,
   earth: 2600,
   map: 0, // driven by the real map flyover sequence instead of a fixed timer
-  reveal: 0,
 };
 
 // Real photographic planet/sun/star textures (NASA-sourced, CC BY 4.0,
@@ -59,6 +58,23 @@ const pinIcon = L.icon({
   iconUrl: `data:image/svg+xml,${PIN_ICON_SVG}`,
   iconSize: [34, 34],
   iconAnchor: [17, 17],
+});
+
+// "You are here" marker for the final stop — my own photo sitting on top of
+// a pin tail that points at the exact spot, like a driver/place marker in a
+// real navigation app, instead of a separate arrived-card overlay.
+const arrivedIcon = L.divIcon({
+  html: `
+    <div class="ml-avatar-pin">
+      <div class="ml-avatar-pin-photo">
+        <img src="/images/my-location-photo.png" alt="" />
+      </div>
+      <div class="ml-avatar-pin-tail"></div>
+      <div class="ml-avatar-pin-pulse"></div>
+    </div>`,
+  className: "ml-avatar-pin-wrap",
+  iconSize: [64, 86],
+  iconAnchor: [32, 86],
 });
 
 const MyLocation = ({
@@ -129,12 +145,10 @@ const MyLocation = ({
 
     setMapStep(0);
 
+    const isFinalStop = (i: number) => i === MAP_STOPS.length - 1;
+
     const goToStop = (i: number) => {
       if (cancelled) return;
-      if (i >= MAP_STOPS.length) {
-        timers.push(setTimeout(() => !cancelled && setStage("reveal"), 400));
-        return;
-      }
       const target = MAP_STOPS[i];
       setMapStep(i);
       marker.setLatLng([target.lat, target.lng]);
@@ -145,6 +159,14 @@ const MyLocation = ({
       const onMoveEnd = () => {
         map.off("moveend", onMoveEnd);
         if (cancelled) return;
+        if (isFinalStop(i)) {
+          // Arrived at Noapara — swap the dot for my photo on a pin, right
+          // on top of the real spot, instead of cutting to a separate card.
+          marker.setIcon(arrivedIcon);
+          const el = marker.getElement();
+          el?.classList.add("ml-avatar-pin-landed");
+          return;
+        }
         timers.push(setTimeout(() => goToStop(i + 1), HOLD_MS[i]));
       };
       map.on("moveend", onMoveEnd);
@@ -215,11 +237,7 @@ const MyLocation = ({
       </div>
 
       {/* Stage 3: Real map drill-down (Leaflet + real OpenStreetMap tiles) */}
-      <div
-        className={`ml-stage ml-map-stage ${
-          stage === "map" ? "ml-active" : stage === "reveal" ? "ml-gone" : "ml-hidden"
-        }`}
-      >
+      <div className={`ml-stage ml-map-stage ${stage === "map" ? "ml-active" : "ml-hidden"}`}>
         <div className="ml-map-viewport">
           <div ref={mapDivRef} className="ml-leaflet-map" />
           <div className="ml-map-shade" />
@@ -231,31 +249,6 @@ const MyLocation = ({
           <div>
             <span className="ml-pin-label">{MAP_STOPS[mapStep].label}</span>
             <span className="ml-pin-coords">{MAP_STOPS[mapStep].coords}</span>
-          </div>
-        </div>
-
-        <div className="ml-map-trail">
-          {MAP_STOPS.map((stop, i) => (
-            <span
-              key={stop.label}
-              className={`ml-map-trail-dot ${i <= mapStep ? "ml-map-trail-dot-on" : ""}`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Stage 4: Reveal */}
-      <div className={`ml-stage ml-reveal-stage ${stage === "reveal" ? "ml-active" : "ml-hidden"}`}>
-        <div className="ml-reveal-card">
-          <img
-            className="ml-reveal-photo"
-            src="/images/my-location-photo.png"
-            alt="Me, in Noapara, Jessore, Khulna, Bangladesh"
-          />
-          <div className="ml-reveal-text">
-            <span className="ml-reveal-eyebrow">You've arrived at</span>
-            <h3>Noapara, Jessore</h3>
-            <p>Khulna Division, Bangladesh</p>
           </div>
         </div>
       </div>

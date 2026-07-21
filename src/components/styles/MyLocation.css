@@ -262,13 +262,12 @@
 
 .ml-map-viewport {
   position: relative;
-  width: min(74vmin, 640px);
-  height: min(74vmin, 640px);
-  border-radius: 26px;
+  width: min(150vmin, 1700px);
+  height: min(150vmin, 1700px);
+  border-radius: 50%;
   overflow: hidden;
-  border: 1px solid rgba(138, 216, 255, 0.28);
-  box-shadow: 0 0 0 10px rgba(5, 12, 30, 0.55), 0 30px 90px rgba(0, 0, 0, 0.55),
-    0 0 70px rgba(138, 216, 255, 0.15);
+  border: none;
+  box-shadow: none;
   background: #0a1524;
 }
 
@@ -288,6 +287,14 @@
   font-size: 9px;
   padding: 1px 6px;
 }
+/* the map circle is now much bigger than the screen so its own bottom-right
+   corner sits off-screen — pin the attribution to the real viewport corner */
+.ml-leaflet-map .leaflet-control-container .leaflet-bottom.leaflet-right {
+  position: fixed;
+  bottom: 6px;
+  right: 8px;
+  z-index: 10;
+}
 .ml-leaflet-map .leaflet-control-attribution a {
   color: rgba(138, 216, 255, 0.8);
 }
@@ -297,7 +304,9 @@
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 50%, transparent 55%, rgba(3, 8, 20, 0.5) 100%);
+  /* the circle itself is much larger than the screen, so the falloff is
+     sized in viewport units (not %) to still darken near the real edges */
+  background: radial-gradient(circle at 50% 50%, transparent 0, transparent 46vmax, rgba(3, 8, 20, 0.55) 78vmax);
 }
 
 /* quick radial flash at the moment each new level lands, like the
@@ -363,94 +372,78 @@
   color: rgba(207, 232, 255, 0.75);
 }
 
-/* progress trail: Bangladesh > Khulna > Jessore > Noapara */
-.ml-map-trail {
-  position: absolute;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 7;
-  display: flex;
-  gap: 10px;
+/* ---------- Final stop: my photo lands as a pin on the real spot ---------- */
+/* Leaflet wraps divIcon html in a plain box with its own background/border —
+   strip that so only our own pin shape shows. */
+.leaflet-div-icon.ml-avatar-pin-wrap {
+  background: transparent;
+  border: none;
 }
-.ml-map-trail-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(207, 232, 255, 0.25);
-  transition: background 0.4s ease, transform 0.4s ease;
-}
-.ml-map-trail-dot-on {
-  background: #8ad8ff;
-  box-shadow: 0 0 8px rgba(138, 216, 255, 0.8);
-  transform: scale(1.25);
-}
-
-/* ---------- Stage 4: reveal ---------- */
-.ml-reveal-card {
+.ml-avatar-pin {
+  position: relative;
+  width: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
-  background: rgba(8, 15, 35, 0.72);
-  border: 1px solid rgba(138, 216, 255, 0.3);
-  backdrop-filter: blur(14px);
-  border-radius: 24px;
-  padding: 30px;
-  max-width: 360px;
-  text-align: center;
+  transform: scale(0.3) translateY(-14px);
   opacity: 0;
-  transform: scale(0.85);
-  box-shadow: 0 0 40px rgba(138, 216, 255, 0.12), 0 0 90px rgba(138, 216, 255, 0.08);
-  animation: ml-reveal-in 0.8s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+  animation: ml-avatar-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-@keyframes ml-reveal-in {
-  0% { opacity: 0; transform: scale(0.85); }
-  100% { opacity: 1; transform: scale(1); }
+.ml-avatar-pin-photo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #8ad8ff;
+  box-shadow: 0 0 16px rgba(138, 216, 255, 0.75), 0 4px 12px rgba(0, 0, 0, 0.5);
+  background: #0a1524;
+  z-index: 2;
 }
-.ml-reveal-photo {
-  width: 220px;
-  height: 220px;
+.ml-avatar-pin-photo img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 18px;
-  border: 1px solid rgba(138, 216, 255, 0.4);
-  box-shadow: 0 0 20px rgba(138, 216, 255, 0.25), 0 0 50px rgba(138, 216, 255, 0.15);
+  display: block;
 }
-.ml-reveal-eyebrow {
-  font-family: "Geist Mono", "Consolas", monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: #8ad8ff;
-  text-shadow: 0 0 10px rgba(138, 216, 255, 0.6);
+.ml-avatar-pin-tail {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 14px solid #8ad8ff;
+  margin-top: -2px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+  z-index: 2;
 }
-.ml-reveal-text h3 {
-  margin: 8px 0 0;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: #f2f8ff;
-  text-shadow: 0 0 12px rgba(138, 216, 255, 0.75), 0 0 30px rgba(138, 216, 255, 0.4), 0 0 60px rgba(138, 216, 255, 0.2);
-  animation: ml-text-glow 2.2s ease-in-out infinite;
+.ml-avatar-pin-pulse {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(138, 216, 255, 0.55);
+  transform: translate(-50%, 0) scale(1);
+  animation: ml-avatar-pulse 1.8s ease-out 0.6s infinite;
+  z-index: 1;
 }
-.ml-reveal-text p {
-  margin: 4px 0 0;
-  font-family: "Geist Mono", "Consolas", monospace;
-  font-size: 13px;
-  letter-spacing: 1px;
-  color: #9fb2d9;
+@keyframes ml-avatar-pop {
+  0% { transform: scale(0.3) translateY(-14px); opacity: 0; }
+  65% { transform: scale(1.14) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+@keyframes ml-avatar-pulse {
+  0% { transform: translate(-50%, 0) scale(0.6); opacity: 0.7; }
+  100% { transform: translate(-50%, 0) scale(3.4); opacity: 0; }
 }
 
 @media only screen and (max-width: 599px) {
   .ml-solar-track { gap: 78px; }
   .ml-sun { width: 84px; height: 84px; }
-  .ml-reveal-photo { width: 170px; height: 170px; }
-  .ml-map-viewport { width: 88vmin; height: 88vmin; border-radius: 20px; }
+  .ml-map-viewport { width: 150vmin; height: 150vmin; border-radius: 50%; }
   .ml-map-chip { padding: 8px 14px; gap: 8px; }
   .ml-map-chip .ml-pin-label { font-size: 14px; letter-spacing: 1px; }
   .ml-map-chip .ml-pin-coords { font-size: 9px; }
   .ml-caption { font-size: 10px; letter-spacing: 3px; }
-  .ml-reveal-text h3 { font-size: 24px; }
+  .ml-avatar-pin-photo { width: 44px; height: 44px; }
 }
