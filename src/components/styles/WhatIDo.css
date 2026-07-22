@@ -359,22 +359,7 @@
   display: inline-block;
   overflow: hidden;
   white-space: nowrap;
-  width: 0;
   max-width: 100%;
-  border-right: 2px solid rgba(191, 233, 255, 0.9);
-  animation: whatTypeLine 3.8s steps(28, end) infinite;
-}
-.line1 { animation-delay: 0s; }
-.line2 { animation-delay: 2s; }
-.line3 { animation-delay: 0.6s; }
-.line4 { animation-delay: 2.5s; }
-.line5 { animation-delay: 1.3s; }
-.line6 { animation-delay: 3.1s; }
-@keyframes whatTypeLine {
-  0% { width: 0; }
-  45% { width: 100%; }
-  75% { width: 100%; }
-  92%, 100% { width: 0; }
 }
 /* Soft glow over the keyboard/hands area, pulsing on the same rhythm as
    the typed lines so the screens and the typing hands read as connected. */
