@@ -2,7 +2,10 @@
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: radial-gradient(circle at 50% 50%, #0b1330, #030510 75%);
+  background:
+    radial-gradient(circle at 22% 18%, rgba(70, 40, 110, 0.35), transparent 38%),
+    radial-gradient(circle at 82% 78%, rgba(30, 70, 120, 0.3), transparent 42%),
+    radial-gradient(circle at 50% 50%, #0b1330, #030510 75%);
   overflow: hidden;
   animation: ml-fade-in 0.5s ease;
 }
@@ -56,6 +59,46 @@
   z-index: 2;
 }
 
+/* Radiating light-speed streaks that build through the flyby, in step with
+   the row's own acceleration (ml-fly), so the whole shot reads as picking
+   up speed rather than just planets sliding past at a flat rate. */
+.ml-hyperspace {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  background: repeating-conic-gradient(
+    from 0deg at 68% 50%,
+    rgba(180, 220, 255, 0.09) 0deg 0.4deg,
+    transparent 0.4deg 5deg
+  );
+  mix-blend-mode: screen;
+  animation: ml-hyperspace-build 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+@keyframes ml-hyperspace-build {
+  0%, 50% { opacity: 0; transform: scale(1); }
+  75% { opacity: 0.4; transform: scale(1.6); }
+  100% { opacity: 0.8; transform: scale(3.6); }
+}
+
+/* Bright punch-through flash bridging the flyby -> Earth-approach cut. */
+.ml-warp-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 68% 50%, #ffffff, #cfe8ff 35%, transparent 72%);
+  animation: ml-warp-flash-burst 0.7s ease-out forwards;
+  animation-delay: 3.85s;
+}
+@keyframes ml-warp-flash-burst {
+  0% { opacity: 0; transform: scale(0.3); }
+  45% { opacity: 1; transform: scale(2); }
+  100% { opacity: 0; transform: scale(3.4); }
+}
+
 .ml-caption {
   position: absolute;
   bottom: 9%;
@@ -91,6 +134,58 @@
   filter: brightness(1.4) contrast(1.1);
   animation: ml-star-drift 60s linear infinite, ml-twinkle 3s ease-in-out infinite alternate;
 }
+/* Second, slower/dimmer/larger-scale copy of the same star texture behind
+   the main one — real parallax depth instead of a single flat layer. */
+.ml-stars-far {
+  position: absolute;
+  inset: -30%;
+  background-size: 2600px auto;
+  background-repeat: repeat;
+  opacity: 0.28;
+  filter: brightness(1.1) blur(0.5px);
+  animation: ml-star-drift-far 140s linear infinite, ml-twinkle 5s ease-in-out infinite alternate-reverse;
+  z-index: 0;
+}
+@keyframes ml-star-drift-far {
+  from { background-position: 0 0; }
+  to { background-position: -2600px -1300px; }
+}
+
+/* Real Hubble nebula photography, softly blended in for color and depth —
+   two clouds drifting very slowly in opposite corners. */
+.ml-nebula {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  mix-blend-mode: screen;
+  filter: saturate(1.3) brightness(0.85) blur(2px);
+  pointer-events: none;
+  z-index: 1;
+}
+.ml-nebula-a {
+  top: -25%;
+  left: -30%;
+  opacity: 0.32;
+  background-position: 30% 40%;
+  animation: ml-nebula-drift-a 90s ease-in-out infinite alternate;
+}
+.ml-nebula-b {
+  bottom: -30%;
+  right: -25%;
+  opacity: 0.26;
+  background-position: 60% 55%;
+  animation: ml-nebula-drift-b 110s ease-in-out infinite alternate;
+}
+@keyframes ml-nebula-drift-a {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(2%, 3%) scale(1.06); }
+}
+@keyframes ml-nebula-drift-b {
+  0% { transform: translate(0, 0) scale(1.04); }
+  100% { transform: translate(-3%, -2%) scale(1); }
+}
 .ml-stars-still { animation: ml-twinkle 3s ease-in-out infinite alternate; }
 @keyframes ml-star-drift {
   from { background-position: 0 0; }
@@ -99,6 +194,32 @@
 @keyframes ml-twinkle {
   from { opacity: 0.35; }
   to { opacity: 0.7; }
+}
+
+/* A handful of bright twinkling points scattered over the field, on top
+   of the photographic star texture, for extra sparkle/depth. */
+.ml-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 12% 22%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 24% 68%, #cfe8ff, transparent 60%),
+    radial-gradient(2px 2px at 38% 14%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 52% 78%, #fff, transparent 60%),
+    radial-gradient(2.5px 2.5px at 64% 32%, #cfe8ff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 76% 58%, #fff, transparent 60%),
+    radial-gradient(2px 2px at 86% 20%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 92% 74%, #cfe8ff, transparent 60%),
+    radial-gradient(2px 2px at 6% 48%, #fff, transparent 60%),
+    radial-gradient(2px 2px at 46% 46%, #cfe8ff, transparent 60%);
+  animation: ml-sparkle-twinkle 2.4s ease-in-out infinite alternate;
+}
+@keyframes ml-sparkle-twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.45; }
 }
 
 /* Home planet — placed as the last item in the same flying row as every
@@ -170,8 +291,93 @@
   align-items: center;
   gap: 150px;
   transform-origin: 68% 50%;
-  animation: ml-fly 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+  animation: ml-fly 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards, ml-track-blur 4.2s ease-in forwards;
   z-index: 3;
+}
+@keyframes ml-track-blur {
+  0%, 55% { filter: blur(0); }
+  78% { filter: blur(2px); }
+  100% { filter: blur(0); }
+}
+
+/* Fast horizontal wind streaks rushing past — sells raw speed on top of
+   the radiating hyperspace rays and the row's own zoom/swoop. */
+.ml-windlines {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  animation: ml-windlines-fade 4.2s ease-in forwards;
+}
+@keyframes ml-windlines-fade {
+  0%, 35% { opacity: 0; }
+  100% { opacity: 0.9; }
+}
+.ml-wind-line {
+  position: absolute;
+  left: -25%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  filter: blur(0.3px);
+  opacity: 0;
+  animation: ml-wind-rush linear infinite;
+}
+@keyframes ml-wind-rush {
+  0% { left: -25%; transform: scaleX(0.6); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.8; }
+  100% { left: 120%; transform: scaleX(1.4); opacity: 0; }
+}
+.ml-wind-1 { top: 16%; width: 220px; animation-duration: 0.85s; animation-delay: 0s; }
+.ml-wind-2 { top: 32%; width: 150px; animation-duration: 1.05s; animation-delay: 0.2s; }
+.ml-wind-3 { top: 50%; width: 260px; animation-duration: 0.75s; animation-delay: 0.4s; }
+.ml-wind-4 { top: 64%; width: 170px; animation-duration: 0.95s; animation-delay: 0.1s; }
+.ml-wind-5 { top: 80%; width: 200px; animation-duration: 0.9s; animation-delay: 0.35s; }
+.ml-wind-6 { top: 8%; width: 130px; animation-duration: 1.1s; animation-delay: 0.5s; }
+
+/* Each planet gets its own slot so it can float/wobble independently of
+   the shared row transform (translate+scale) and of its own entrance
+   pop-in — three motions layered without fighting each other. */
+.ml-planet-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ml-slot-mercury { animation: ml-drift-a 6s ease-in-out infinite; }
+.ml-slot-venus   { animation: ml-drift-b 7.5s ease-in-out infinite 0.4s; }
+.ml-slot-earth   { animation: ml-drift-c 6.8s ease-in-out infinite 0.2s; }
+.ml-slot-mars    { animation: ml-drift-a 5.5s ease-in-out infinite 0.6s; }
+.ml-slot-jupiter { animation: ml-drift-b 9s ease-in-out infinite 0.1s; }
+.ml-slot-saturn  { animation: ml-drift-c 8.2s ease-in-out infinite 0.5s; }
+.ml-slot-uranus  { animation: ml-drift-a 7s ease-in-out infinite 0.3s; }
+.ml-slot-neptune { animation: ml-drift-b 6.4s ease-in-out infinite 0.7s; }
+
+@keyframes ml-drift-a {
+  0%, 100% { transform: translateY(-11px) rotate(-2.5deg); }
+  50% { transform: translateY(9px) rotate(2deg); }
+}
+@keyframes ml-drift-b {
+  0%, 100% { transform: translateY(10px) rotate(2deg); }
+  50% { transform: translateY(-8px) rotate(-2.5deg); }
+}
+@keyframes ml-drift-c {
+  0%, 100% { transform: translateY(-7px) rotate(1.5deg); }
+  50% { transform: translateY(13px) rotate(-1.5deg); }
+}
+
+/* Staggered pop-in: each planet materializes a beat after the last, so
+   the flyby reads as passing distinct objects one at a time rather than
+   the whole row just being present from frame one. */
+.ml-pop {
+  animation: ml-planet-pop 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.3) backwards;
+}
+@keyframes ml-planet-pop {
+  0% { opacity: 0; transform: scale(0.35) rotate(-16deg); filter: brightness(2.2) blur(3px); }
+  60% { opacity: 1; transform: scale(1.16) rotate(4deg); filter: brightness(1.35) blur(0); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1) blur(0); }
 }
 
 /* Final planet — placed as the last item in the flying row so it shares
@@ -185,6 +391,11 @@
   overflow: hidden;
   flex-shrink: 0;
   box-shadow: 0 0 50px 16px rgba(200, 170, 140, 0.35), 0 0 100px 32px rgba(180, 150, 120, 0.18);
+  animation: ml-final-planet-glow-build 4.2s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+@keyframes ml-final-planet-glow-build {
+  0%, 55% { box-shadow: 0 0 50px 16px rgba(200, 170, 140, 0.35), 0 0 100px 32px rgba(180, 150, 120, 0.18); }
+  100% { box-shadow: 0 0 90px 30px rgba(220, 195, 165, 0.6), 0 0 170px 55px rgba(200, 170, 140, 0.32); }
 }
 .ml-final-planet-map {
   position: absolute;
@@ -212,11 +423,26 @@
   box-shadow: inset 0 0 26px 8px rgba(210, 180, 150, 0.4);
   pointer-events: none;
 }
+.ml-final-planet-corona {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(230, 200, 170, 0.5);
+  opacity: 0;
+  animation: ml-corona-pulse 2.4s ease-out infinite;
+  animation-delay: 4.2s;
+}
+@keyframes ml-corona-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(230, 200, 170, 0.55); opacity: 0.8; }
+  100% { box-shadow: 0 0 0 40px rgba(230, 200, 170, 0); opacity: 0; }
+}
 @keyframes ml-fly {
-  0% { transform: translate(0, -50%) scale(1); }
-  60% { transform: translate(-42%, -50%) scale(2.3); }
-  85% { transform: translate(-46%, -50%) scale(6.5); }
-  100% { transform: translate(-48%, -50%) scale(11); }
+  0% { transform: translate(0, -50%) scale(1) rotate(0deg); }
+  30% { transform: translate(-16%, -55%) scale(1.45) rotate(-2.2deg); }
+  60% { transform: translate(-42%, -45%) scale(2.3) rotate(1.6deg); }
+  85% { transform: translate(-46%, -50%) scale(6.5) rotate(-0.4deg); }
+  100% { transform: translate(-48%, -50%) scale(11) rotate(0deg); }
 }
 
 .ml-planet {
@@ -359,8 +585,6 @@
 
 .ml-comet {
   position: absolute;
-  top: 55%;
-  left: -10%;
   width: 140px;
   height: 3px;
   background: linear-gradient(90deg, transparent, #8ad8ff 55%, #ffffff);
@@ -368,16 +592,87 @@
   filter: blur(0.4px);
   opacity: 0;
   z-index: 4;
-  animation: ml-comet-fly 4.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
-@keyframes ml-comet-fly {
+.ml-comet-a {
+  top: 55%;
+  left: -10%;
+  animation: ml-comet-fly-a 4.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.ml-comet-b {
+  top: 30%;
+  left: -14%;
+  width: 90px;
+  height: 2px;
+  animation: ml-comet-fly-b 3.4s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.5s;
+}
+.ml-comet-c {
+  top: 74%;
+  left: -18%;
+  width: 60px;
+  height: 2px;
+  opacity: 0;
+  animation: ml-comet-fly-c 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards 1.4s;
+}
+@keyframes ml-comet-fly-a {
   0% { left: -10%; top: 58%; opacity: 0; transform: scaleX(0.6); }
   10% { opacity: 1; }
   100% { left: 104%; top: 28%; opacity: 0; transform: scaleX(1.7); }
 }
+@keyframes ml-comet-fly-b {
+  0% { left: -14%; top: 32%; opacity: 0; transform: scaleX(0.5); }
+  12% { opacity: 0.85; }
+  100% { left: 106%; top: 62%; opacity: 0; transform: scaleX(1.4); }
+}
+@keyframes ml-comet-fly-c {
+  0% { left: -18%; top: 76%; opacity: 0; transform: scaleX(0.4); }
+  14% { opacity: 0.7; }
+  100% { left: 108%; top: 12%; opacity: 0; transform: scaleX(1.3); }
+}
 
 /* ---------- Stage 2: Earth approach (real day-map texture) ---------- */
-.ml-earth-stage { perspective: 1000px; background: radial-gradient(circle at 50% 50%, #061024, #020410 80%); }
+.ml-earth-stage {
+  perspective: 1000px;
+  background:
+    radial-gradient(circle at 25% 20%, rgba(60, 40, 100, 0.28), transparent 40%),
+    radial-gradient(circle at 50% 50%, #061024, #020410 80%);
+}
+
+/* Expanding shockwave ring timed to the moment the globe-zoom settles —
+   reads as an "arrival" beat instead of the zoom just stopping cold. */
+.ml-arrival-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ml-arrival-glow-a::before {
+  content: "";
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 0 0 rgba(138, 216, 255, 0.55);
+  animation: ml-arrival-ring 1.3s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+  animation-delay: 2.35s;
+}
+.ml-arrival-glow-b::before {
+  content: "";
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 0 0 rgba(200, 235, 255, 0.4);
+  animation: ml-arrival-ring 1.5s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
+  animation-delay: 2.55s;
+}
+@keyframes ml-arrival-ring {
+  0% { box-shadow: 0 0 0 0 rgba(138, 216, 255, 0.6); opacity: 1; }
+  100% { box-shadow: 0 0 0 600px rgba(138, 216, 255, 0); opacity: 0; }
+}
+
 .ml-globe {
   position: relative;
   width: 60px;
@@ -385,11 +680,12 @@
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 0 90px 24px rgba(138, 216, 255, 0.35);
-  animation: ml-globe-zoom 2.6s cubic-bezier(0.55, 0, 0.25, 1) forwards;
+  animation: ml-globe-zoom 2.6s cubic-bezier(0.5, 0, 0.15, 1) forwards;
   z-index: 3;
 }
 @keyframes ml-globe-zoom {
   0% { width: 60px; height: 60px; }
+  88% { width: 1780px; height: 1780px; }
   100% { width: 1700px; height: 1700px; }
 }
 .ml-globe-map {
@@ -443,6 +739,20 @@
   height: 32%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent 70%);
   border-radius: 50%;
+}
+.ml-globe-sweep {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.35) 48%, transparent 56%);
+  opacity: 0;
+  animation: ml-globe-sweep-pass 1.1s ease-out forwards;
+  animation-delay: 2.5s;
+  pointer-events: none;
+}
+@keyframes ml-globe-sweep-pass {
+  0% { transform: translateX(-60%); opacity: 0; }
+  20% { opacity: 0.9; }
+  100% { transform: translateX(60%); opacity: 0; }
 }
 .ml-globe-atmosphere {
   position: absolute;

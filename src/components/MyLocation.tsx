@@ -15,7 +15,7 @@ const STAGE_DURATIONS: Record<Stage, number> = {
 // mirrored on Wikimedia Commons) — hotlinked via Special:FilePath so the
 // redirect always resolves to the current file.
 const WIKI = (file: string, width: number) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${file}?width=${width}`;
+  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 
 const TEX = {
   stars: WIKI("Solarsystemscope_texture_2k_stars_milky_way.jpg", 2000),
@@ -31,19 +31,31 @@ const TEX = {
   uranus: WIKI("Solarsystemscope_texture_2k_uranus.jpg", 260),
   neptune: WIKI("Solarsystemscope_texture_2k_neptune.jpg", 260),
   pluto: WIKI("Pluto_in_True_Color_-_High-Res.jpg", 500),
+  // Real Hubble nebula photography for background depth/color.
+  nebulaOrion: WIKI("Orion_Nebula_(Hubble_Space_Telescope).jpg", 1600),
+  nebulaCarina: WIKI("Carina_Nebula_in_visible_light_(captured_by_the_Hubble_Space_Telescope).jpg", 1600),
 };
 
 // Real coordinates for each stop on the journey home — fed straight into
 // Leaflet + real OpenStreetMap tiles, so the imagery is the real map.
+// The first stop is a zoomed-way-out view (same center, low zoom) so the
+// map opens showing the wider region and neighboring countries before
+// diving down into Bangladesh, instead of cutting straight to a
+// country-level view.
 const MAP_STOPS = [
+  { label: "", coords: "", lat: 23.685, lng: 90.3563, zoom: 2.3 },
   { label: "Bangladesh", coords: "23.6850° N, 90.3563° E", lat: 23.685, lng: 90.3563, zoom: 7 },
   { label: "Khulna", coords: "22.8456° N, 89.5403° E", lat: 22.8456, lng: 89.5403, zoom: 9 },
   { label: "Jessore", coords: "23.1697° N, 89.2137° E", lat: 23.1697, lng: 89.2137, zoom: 11 },
   { label: "Noapara", coords: "23.0332° N, 89.3952° E", lat: 23.0332, lng: 89.3952, zoom: 14.5 },
 ];
 
-const HOLD_MS = [1700, 1500, 1500, 1800]; // pause at each stop before moving on
+const HOLD_MS = [1400, 1700, 1500, 1500, 1800]; // pause at each stop before moving on
 const FLY_DURATION = 1.6; // seconds, Leaflet's built-in animated pan+zoom
+// The world-view -> Bangladesh hop crosses many more zoom levels than the
+// rest, so it gets its own longer duration to read as a real descent
+// rather than a rushed snap. Indexed by the stop being flown TO.
+const FLY_DURATIONS: Record<number, number> = { 1: 2.8 };
 
 // CARTO's free "Voyager" tiles — real OpenStreetMap data, no API key,
 // shown in full real color instead of the dark black/white style.
@@ -156,7 +168,7 @@ const MyLocation = ({
       setMapStep(i);
       marker.setLatLng([target.lat, target.lng]);
       map.flyTo([target.lat, target.lng], target.zoom, {
-        duration: FLY_DURATION,
+        duration: FLY_DURATIONS[i] ?? FLY_DURATION,
         easeLinearity: 0.25,
       });
       const onMoveEnd = () => {
@@ -205,24 +217,58 @@ const MyLocation = ({
         ✕
       </button>
 
+      {/* Bright punch-through flash that bridges the cut from the flyby into
+          the Earth approach — masks the hard cut so it reads as "breaking
+          through" rather than a cross-fade between two separate shots. */}
+      {stage === "space" && <div className="ml-warp-flash" />}
+
       {/* Stage 1: Solar system flyby (real NASA/Solar System Scope textures) */}
       <div className={`ml-stage ml-space ${stage === "space" ? "ml-active" : "ml-gone"}`}>
+        <div className="ml-stars ml-stars-far" style={{ backgroundImage: `url(${TEX.stars})` }} />
+        <div className="ml-nebula ml-nebula-a" style={{ backgroundImage: `url(${TEX.nebulaOrion})` }} />
+        <div className="ml-nebula ml-nebula-b" style={{ backgroundImage: `url(${TEX.nebulaCarina})` }} />
         <div className="ml-stars" style={{ backgroundImage: `url(${TEX.stars})` }} />
+        <div className="ml-sparkles" />
         <div className="ml-vignette" />
+        <div className="ml-hyperspace" />
+        <div className="ml-windlines">
+          <span className="ml-wind-line ml-wind-1" />
+          <span className="ml-wind-line ml-wind-2" />
+          <span className="ml-wind-line ml-wind-3" />
+          <span className="ml-wind-line ml-wind-4" />
+          <span className="ml-wind-line ml-wind-5" />
+          <span className="ml-wind-line ml-wind-6" />
+        </div>
         <div className="ml-solar-track">
           <div className="ml-planet ml-sun" style={{ backgroundImage: `url(${TEX.sun})` }} />
-          <div className="ml-planet ml-mercury" style={{ backgroundImage: `url(${TEX.mercury})` }} />
-          <div className="ml-planet ml-venus" style={{ backgroundImage: `url(${TEX.venus})` }} />
-          <div className="ml-planet ml-earth-dot" style={{ backgroundImage: `url(${TEX.earth})` }} />
-          <div className="ml-planet ml-mars" style={{ backgroundImage: `url(${TEX.mars})` }} />
-          <div className="ml-planet ml-jupiter" style={{ backgroundImage: `url(${TEX.jupiter})` }} />
-          <div className="ml-saturn-group">
-            <div className="ml-ring" />
-            <div className="ml-planet ml-saturn" style={{ backgroundImage: `url(${TEX.saturn})` }} />
-            <div className="ml-ring-front" />
+          <div className="ml-planet-slot ml-slot-mercury">
+            <div className="ml-planet ml-mercury ml-pop" style={{ backgroundImage: `url(${TEX.mercury})`, animationDelay: "0s" }} />
           </div>
-          <div className="ml-planet ml-uranus" style={{ backgroundImage: `url(${TEX.earth})` }} />
-          <div className="ml-planet ml-neptune" style={{ backgroundImage: `url(${TEX.neptune})` }} />
+          <div className="ml-planet-slot ml-slot-venus">
+            <div className="ml-planet ml-venus ml-pop" style={{ backgroundImage: `url(${TEX.venus})`, animationDelay: "0.15s" }} />
+          </div>
+          <div className="ml-planet-slot ml-slot-earth">
+            <div className="ml-planet ml-earth-dot ml-pop" style={{ backgroundImage: `url(${TEX.uranus})`, animationDelay: "0.3s" }} />
+          </div>
+          <div className="ml-planet-slot ml-slot-mars">
+            <div className="ml-planet ml-mars ml-pop" style={{ backgroundImage: `url(${TEX.mars})`, animationDelay: "0.45s" }} />
+          </div>
+          <div className="ml-planet-slot ml-slot-jupiter">
+            <div className="ml-planet ml-jupiter ml-pop" style={{ backgroundImage: `url(${TEX.jupiter})`, animationDelay: "0.6s" }} />
+          </div>
+          <div className="ml-planet-slot ml-slot-saturn">
+            <div className="ml-saturn-group ml-pop" style={{ animationDelay: "0.75s" }}>
+              <div className="ml-ring" />
+              <div className="ml-planet ml-saturn" style={{ backgroundImage: `url(${TEX.saturn})` }} />
+              <div className="ml-ring-front" />
+            </div>
+          </div>
+          <div className="ml-planet-slot ml-slot-uranus">
+            <div className="ml-planet ml-uranus ml-pop" style={{ backgroundImage: `url(${TEX.earth})`, animationDelay: "0.9s" }} />
+          </div>
+          <div className="ml-planet-slot ml-slot-neptune">
+            <div className="ml-planet ml-neptune ml-pop" style={{ backgroundImage: `url(${TEX.neptune})`, animationDelay: "1.05s" }} />
+          </div>
 
           {/* Final planet at the end of the flight path — shares the row's
               single transform (translate + scale) so it grows into frame
@@ -232,21 +278,27 @@ const MyLocation = ({
             <div className="ml-final-planet-map" style={{ backgroundImage: `url(${TEX.pluto})` }} />
             <div className="ml-final-planet-shade" />
             <div className="ml-final-planet-atmosphere" />
+            <div className="ml-final-planet-corona" />
           </div>
         </div>
-        <div className="ml-comet" />
+        <div className="ml-comet ml-comet-a" />
+        <div className="ml-comet ml-comet-b" />
+        <div className="ml-comet ml-comet-c" />
         <p className="ml-caption ml-caption-space">leaving the solar system...</p>
       </div>
 
       {/* Stage 2: Earth approach (real Earth day-map texture, rotating) */}
       <div className={`ml-stage ml-earth-stage ${stage === "earth" ? "ml-active" : stage === "space" ? "ml-hidden" : "ml-gone"}`}>
         <div className="ml-stars ml-stars-still" style={{ backgroundImage: `url(${TEX.stars})` }} />
+        <div className="ml-arrival-glow ml-arrival-glow-a" />
+        <div className="ml-arrival-glow ml-arrival-glow-b" />
         <div className="ml-globe">
           <div className="ml-globe-map" style={{ backgroundImage: `url(${TEX.earth})` }} />
           <div className="ml-globe-night" style={{ backgroundImage: `url(${TEX.earthNight})` }} />
           <div className="ml-globe-clouds" style={{ backgroundImage: `url(${TEX.earthClouds})` }} />
           <div className="ml-globe-shade" />
           <div className="ml-globe-shine" />
+          <div className="ml-globe-sweep" />
           <div className="ml-globe-atmosphere" />
         </div>
         <p className="ml-caption">approaching Earth</p>
@@ -260,13 +312,15 @@ const MyLocation = ({
           <div key={mapStep} className="ml-zoom-pulse" />
         </div>
 
-        <div key={mapStep} className="ml-map-chip">
-          <span className="ml-map-chip-pin" />
-          <div>
-            <span className="ml-pin-label">{MAP_STOPS[mapStep].label}</span>
-            <span className="ml-pin-coords">{MAP_STOPS[mapStep].coords}</span>
+        {MAP_STOPS[mapStep].label && (
+          <div key={mapStep} className="ml-map-chip">
+            <span className="ml-map-chip-pin" />
+            <div>
+              <span className="ml-pin-label">{MAP_STOPS[mapStep].label}</span>
+              <span className="ml-pin-coords">{MAP_STOPS[mapStep].coords}</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
