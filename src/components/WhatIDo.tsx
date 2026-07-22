@@ -134,21 +134,6 @@ const WhatIDo = () => {
                 alt="Abid working at a coding desk"
                 className="what-visual-image"
               />
-              <div className="what-visual-screens">
-                <div className="what-screen what-screen-1">
-                  <span className="what-type-line line1">const flow = () =&gt; {"{"}</span>
-                  <span className="what-type-line line2">connectWallet();</span>
-                </div>
-                <div className="what-screen what-screen-2">
-                  <span className="what-type-line line3">function verify(tx) {"{"}</span>
-                  <span className="what-type-line line4">return zk.check(tx);</span>
-                </div>
-                <div className="what-screen what-screen-3">
-                  <span className="what-type-line line5">export default App;</span>
-                  <span className="what-type-line line6">{"// build trust"}</span>
-                </div>
-                <div className="what-keyboard-glow"></div>
-              </div>
             </div>
           </div>
         </div>
