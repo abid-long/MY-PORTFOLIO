@@ -9,14 +9,14 @@ const timelineEntries = [
   {
     role: "Early builder mindset",
     company: "Independent learning phase",
-    year: "2023",
+    year: "2024",
     description:
       "Started building a stronger foundation around frontend systems, product thinking, and how digital experiences can earn user trust instead of just demanding it.",
   },
   {
     role: "Web3 research and exploration",
     company: "Blockchain, privacy, and DeFi",
-    year: "2024",
+    year: "2025",
     description:
       "Moved deeper into blockchain design, privacy tech, and DeFi research to understand protocol behavior, trust models, and the product gaps that still need better interfaces.",
   },
